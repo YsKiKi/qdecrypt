@@ -95,13 +95,19 @@ impl Config {
 
 // ── 辅助函数 ────────────────────────────────────────────
 
-/// 读取用户输入，自动去除拖放路径两端的引号和空白
-fn read_input(prompt: &str) -> String {
+/// 读取用户输入（仅去首尾空白，保留引号供多路径解析）
+fn read_raw_input(prompt: &str) -> String {
     print!("{}", prompt);
     io::stdout().flush().unwrap();
     let mut input = String::new();
     io::stdin().read_line(&mut input).unwrap();
-    input.trim().trim_matches('"').trim_matches('\'').to_string()
+    input.trim().to_string()
+}
+
+/// 读取用户输入，自动去除拖放路径两端的引号和空白（单路径场景）
+fn read_input(prompt: &str) -> String {
+    let raw = read_raw_input(prompt);
+    raw.trim_matches('"').trim_matches('\'').to_string()
 }
 
 /// 将用户拖放的一行输入拆分为多个路径（支持多文件拖放，空格分隔且带引号）
@@ -382,7 +388,7 @@ fn main() -> Result<()> {
         match choice.as_str() {
             // ── 解密文件（支持多文件拖放）──
             "1" => {
-                let input = read_input("  拖放文件到此处 (支持多个) > ");
+                let input = read_raw_input("  拖放文件到此处 (支持多个) > ");
                 if input.is_empty() {
                     log_warn!("输入为空，已取消");
                     println!();

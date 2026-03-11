@@ -1,8 +1,8 @@
 # Changelog
 
-## [0.0.0-alpha.1] - 2026-03
-### Features
-- personal use
+## [1.0.0-alpha.4] - 2026-03
+### Fix
+- 修复parse_paths导致的路径识别问题
 
 ## [1.0.0-alpha.3] - 2026-03
 ### Features
@@ -20,3 +20,7 @@
 ## [1.0.0-alpha.1] - 2026-03
 ### Features
 - support TUI and config file
+
+## [0.0.0-alpha.1] - 2026-03
+### Features
+- personal use
