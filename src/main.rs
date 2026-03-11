@@ -2,13 +2,24 @@ use anyhow::{Context, Result};
 use frida::{Frida, Message};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
-use std::env::home_dir;
 use std::fs;
 use std::io::{self, Write};
 use std::path::{Path, PathBuf};
 use std::sync::LazyLock;
 
 static FRIDA: LazyLock<Frida> = LazyLock::new(|| unsafe { Frida::obtain() });
+
+/// 跨平台获取用户主目录
+fn home_dir() -> Option<PathBuf> {
+    #[cfg(windows)]
+    {
+        std::env::var_os("USERPROFILE").map(PathBuf::from)
+    }
+    #[cfg(not(windows))]
+    {
+        std::env::var_os("HOME").map(PathBuf::from)
+    }
+}
 
 // ── 持久化配置 ──────────────────────────────────────────
 
