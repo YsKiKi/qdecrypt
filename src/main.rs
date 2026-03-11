@@ -1,7 +1,8 @@
 use anyhow::{Context, Result};
 use frida::{Frida, Message};
 use serde_json::json;
-use std::env::{current_dir, home_dir};
+use std::env::{args, current_dir, home_dir};
+use std::path::PathBuf;
 use std::sync::LazyLock;
 
 static FRIDA: LazyLock<Frida> = LazyLock::new(|| unsafe { Frida::obtain() });
@@ -24,10 +25,20 @@ fn main() -> Result<()> {
     script.handle_message(Handler)?;
     script.load()?;
 
-    let qq_music_dir = home_dir()
-        .context("无法获取home主目录")?
-        .join("Music")
-        .join("VipSongsDownload");
+    let qq_music_dir: PathBuf = match args().nth(1) {
+        Some(p) => PathBuf::from(p),
+        None => home_dir()
+            .context("无法获取home主目录")?
+            .join("Music")
+            .join("VipSongsDownload"),
+    };
+
+    if !qq_music_dir.exists() {
+        anyhow::bail!(
+            "QQ音乐目录不存在: {}\n提示：可以将自定义路径作为命令行参数传入，例如：qqmusic_des \"D:\\MyMusic\\VipSongsDownload\"",
+            qq_music_dir.display()
+        );
+    }
 
     println!("[*] QQ音乐目录: {}", qq_music_dir.display());
 
