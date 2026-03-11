@@ -90,7 +90,7 @@ fn get_output_dir(config: &Config) -> Result<PathBuf> {
 }
 
 /// 解密单个文件，返回 true 表示成功解密
-fn decrypt_file(script: &frida::Script, file_path: &Path, output_dir: &Path) -> Result<bool> {
+fn decrypt_file(script: &mut frida::Script, file_path: &Path, output_dir: &Path) -> Result<bool> {
     if !file_path.is_file() {
         return Ok(false);
     }
@@ -138,7 +138,7 @@ fn decrypt_file(script: &frida::Script, file_path: &Path, output_dir: &Path) -> 
 }
 
 /// 解密文件夹下所有支持的文件，返回成功解密的数量
-fn decrypt_folder(script: &frida::Script, folder: &Path, output_dir: &Path) -> Result<u32> {
+fn decrypt_folder(script: &mut frida::Script, folder: &Path, output_dir: &Path) -> Result<u32> {
     let mut count = 0u32;
     for entry in folder.read_dir()?.flatten() {
         let path = entry.path();
@@ -214,7 +214,7 @@ fn main() -> Result<()> {
                     continue;
                 }
                 let output_dir = get_output_dir(&config)?;
-                match decrypt_file(&script, &path, &output_dir) {
+                match decrypt_file(&mut script, &path, &output_dir) {
                     Ok(true) => println!("\n  [*] 解密完成！"),
                     Ok(false) => println!("\n  [!] 不支持的文件格式或文件已存在"),
                     Err(e) => println!("\n  [!] 解密失败: {}", e),
@@ -233,7 +233,7 @@ fn main() -> Result<()> {
                 }
                 let output_dir = get_output_dir(&config)?;
                 println!("  [*] 正在解密: {}", path.display());
-                match decrypt_folder(&script, &path, &output_dir) {
+                match decrypt_folder(&mut script, &path, &output_dir) {
                     Ok(count) => println!("\n  [*] 解密完成！共处理 {} 个文件", count),
                     Err(e) => println!("\n  [!] 解密失败: {}", e),
                 }
@@ -253,7 +253,7 @@ fn main() -> Result<()> {
                 }
                 let output_dir = get_output_dir(&config)?;
                 println!("  [*] 正在解密: {}", source.display());
-                match decrypt_folder(&script, &source, &output_dir) {
+                match decrypt_folder(&mut script, &source, &output_dir) {
                     Ok(count) => println!("\n  [*] 解密完成！共处理 {} 个文件", count),
                     Err(e) => println!("\n  [!] 解密失败: {}", e),
                 }
